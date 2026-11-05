@@ -81,7 +81,10 @@ npm run test:e2e                    # Playwright: flujos A y B (levanta next dev
   doble envío sin duplicar, insistencia registrada).
   *Nota: el entorno local auto-confirma correos; la exigencia de verificación
   está probada a nivel de RPC/RLS y por configuración de Auth en producción.*
-- **Lighthouse móvil (producción):** ver sección más abajo.
+- **Lighthouse móvil (producción, 05/11/2026, emulación Moto G Power):**
+  - `/` (landing): **Performance 92 · Accesibilidad 100 · Best Practices 100 · SEO 100** (LCP 1,8 s, TTFB 310 ms, CLS 0,001)
+  - `/explorar`: **Performance 93 · Accesibilidad 100 · Best Practices 100 · SEO 100** (LCP 2,7 s)
+  - Objetivo ≥90 móvil: ✅ cumplido en ambas páginas.
 
 ## Checklist de seguridad §5 (verificación punto a punto)
 
@@ -148,7 +151,12 @@ npm run test:e2e                    # Playwright: flujos A y B (levanta next dev
    la UI para deploys automáticos y Deploy Previews por PR.
 3. **Región de Supabase (ca-central-1):** funcional, pero con más latencia que
    sa-east-1 y relevante para LEGAL-05. Migrar = proyecto nuevo + restore.
-4. **Lighthouse y smoke de producción**: ver sección de cierre del reporte.
+4. **Smoke de producción con correo real pendiente del founder:** el ciclo
+   registro → correo de verificación → publicar/solicitar solo puede probarse
+   end-to-end en producción con la casilla dueña de la cuenta Resend
+   (`equipomilocal@gmail.com`) mientras no haya dominio verificado. Los flujos
+   completos están probados E2E en local y la configuración de Auth de
+   producción está verificada por API.
 
 ## Backlog priorizado — Día 2
 
