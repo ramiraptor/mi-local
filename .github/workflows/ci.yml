@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder
+          NEXT_PUBLIC_SITE_URL: https://mi-local-cl.netlify.app
+
+  rls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: npm ci
+      - name: Start local Supabase (applies migrations)
+        run: supabase start
+      - name: RLS / cross-access tests
+        run: |
+          cp .env.example .env.local
+          supabase status -o env | grep -E "^(API_URL|ANON_KEY|SERVICE_ROLE_KEY)" > sb.env
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(grep API_URL sb.env | cut -d= -f2- | tr -d '\"')" > .env.local
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(grep ANON_KEY sb.env | cut -d= -f2- | tr -d '\"')" >> .env.local
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(grep SERVICE_ROLE_KEY sb.env | cut -d= -f2- | tr -d '\"')" >> .env.local
+          npm run test:rls
