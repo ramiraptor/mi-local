@@ -19,3 +19,8 @@
    cuando haya colaboración.
 8. Reportar resultados REALES de pruebas (nunca «debería pasar») y declarar
    explícitamente lo no implementado.
+9. **Correos de Auth:** las plantillas de producción construyen el enlace como
+   `{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=…` (flujo token_hash,
+   válido en cualquier navegador). Por eso TODA llamada a `signUp`, `resend` y
+   `resetPasswordForEmail` debe pasar `emailRedirectTo`/`redirectTo` apuntando a
+   `/auth/confirm?…` con query string; omitirlo genera enlaces rotos.
