@@ -54,12 +54,57 @@ export function EntrepreneurWizard() {
   const [userId, setUserId] = useState<string | null>(null);
   const trackedStart = useRef(false);
 
-  // Cargar borrador + sesión
+  // Cargar borrador + sesión. Si hay sesión y no hay borrador local,
+  // precargar desde BD (la búsqueda activa es ÚNICA y editable, no se duplica).
   useEffect(() => {
     const draft = entrepreneurDraft.load<EntrepreneurDraftData>();
     if (draft) setData({ ...EMPTY_ENTREPRENEUR_DRAFT, ...draft });
     const supabase = createSupabaseBrowser();
-    void supabase.auth.getUser().then(({ data: { user } }) => setUserId(user?.id ?? null));
+    void supabase.auth.getUser().then(async ({ data: { user } }) => {
+      setUserId(user?.id ?? null);
+      if (!user || draft) return;
+      const [{ data: ep }, { data: s }] = await Promise.all([
+        supabase.from("entrepreneur_profiles").select("*").eq("user_id", user.id).maybeSingle(),
+        supabase.from("active_searches").select("*").eq("user_id", user.id).maybeSingle(),
+      ]);
+      if (!ep && !s) return;
+      setData((prev) => ({
+        ...prev,
+        rubro: (ep?.rubro as string) ?? prev.rubro,
+        subrubro: (ep?.subrubro as string) ?? prev.subrubro,
+        stage: (ep?.stage as EntrepreneurDraftData["stage"]) ?? prev.stage,
+        business_name: (ep?.business_name as string) ?? prev.business_name,
+        is_first_location: (ep?.is_first_location as boolean | null) ?? prev.is_first_location,
+        region_id: (s?.region_id as string) ?? prev.region_id,
+        commune_ids: (s?.commune_ids as string[]) ?? prev.commune_ids,
+        sector: (s?.sector as string) ?? prev.sector,
+        territorial_flexibility:
+          (s?.territorial_flexibility as boolean | null) ?? prev.territorial_flexibility,
+        property_type: (s?.property_type as EntrepreneurDraftData["property_type"]) ?? prev.property_type,
+        surface_min_m2: (s?.surface_min_m2 as number | null) ?? prev.surface_min_m2,
+        surface_max_m2: (s?.surface_max_m2 as number | null) ?? prev.surface_max_m2,
+        max_monthly_rent_clp: (s?.max_monthly_rent_clp as number | null) ?? prev.max_monthly_rent_clp,
+        budget_flexibility:
+          (s?.budget_flexibility as EntrepreneurDraftData["budget_flexibility"]) ?? prev.budget_flexibility,
+        gas_extraction: (s?.gas_extraction as EntrepreneurDraftData["gas_extraction"]) ?? prev.gas_extraction,
+        three_phase_power:
+          (s?.three_phase_power as EntrepreneurDraftData["three_phase_power"]) ?? prev.three_phase_power,
+        accessibility_required:
+          (s?.accessibility_required as EntrepreneurDraftData["accessibility_required"]) ??
+          prev.accessibility_required,
+        parking_required:
+          (s?.parking_required as EntrepreneurDraftData["parking_required"]) ?? prev.parking_required,
+        storage_required:
+          (s?.storage_required as EntrepreneurDraftData["storage_required"]) ?? prev.storage_required,
+        terrace_required:
+          (s?.terrace_required as EntrepreneurDraftData["terrace_required"]) ?? prev.terrace_required,
+        gastronomic_fit_required:
+          (s?.gastronomic_fit_required as EntrepreneurDraftData["gastronomic_fit_required"]) ??
+          prev.gastronomic_fit_required,
+        horizon: (s?.horizon as EntrepreneurDraftData["horizon"]) ?? prev.horizon,
+        install_window_note: (s?.install_window_note as string) ?? prev.install_window_note,
+      }));
+    });
     if (!trackedStart.current) {
       trackedStart.current = true;
       track("assessment_entrepreneur_started");
