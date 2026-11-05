@@ -85,7 +85,7 @@ test("Flujo A: assessment propietario → registro → fotos → PUBLISHED", asy
   await register(page, { email: OWNER_EMAIL, name: "Propietaria E2E" });
 
   // Vinculación del borrador y aterrizaje en Mis locales
-  await page.waitForURL(/mis-locales/, { timeout: 45_000 });
+  await page.waitForURL((url) => url.pathname === "/mis-locales", { timeout: 45_000 });
   await expect(page.getByText(PROPERTY_TITLE)).toBeVisible();
   await expect(page.getByText("Borrador incompleto").first()).toBeVisible();
 
@@ -103,7 +103,7 @@ test("Flujo A: assessment propietario → registro → fotos → PUBLISHED", asy
   writeFileSync(photoPath, jpeg);
   await page.setInputFiles('input[type="file"]', photoPath);
   await expect(page.getByText("Fotografías (1/12)")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("Portada")).toBeVisible();
+  await expect(page.getByText("Portada", { exact: true })).toBeVisible();
 
   // Publicar: DRAFT → PUBLISHED inmediato (sin aprobación previa)
   await page.getByRole("button", { name: "Publicar", exact: true }).click();
@@ -139,13 +139,13 @@ test("Flujo B: visitante → registro exprés → Interest único e idempotente"
   await register(page, { email: BUYER_EMAIL, name: "Camila E2E" });
 
   // return_to: vuelve exactamente a la ficha
-  await page.waitForURL(new RegExp(propertyUrl.replace(/\//g, "\\/")), { timeout: 45_000 });
+  await page.waitForURL((url) => url.pathname === propertyUrl, { timeout: 45_000 });
 
   // Enviar CONTACT
   await page.getByText("Quiero que me contacten").click();
   await page.getByRole("button", { name: "Enviar solicitud" }).click();
   await expect(page.getByText("Solicitud recibida")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText("no es una visita agendada", { exact: false })).toBeVisible();
+  await expect(page.getByText("Recuerda: esto no es una visita agendada", { exact: false })).toBeVisible();
 
   // Doble envío: recarga y reenvía → un solo Interest, insistencia registrada
   await page.reload();

@@ -48,6 +48,7 @@ export function WelcomeSetup() {
         router.replace(`/login?return_to=${encodeURIComponent(returnTo)}`);
         return;
       }
+      try {
 
       const setup = readPendingSetup();
       const eDraft = entrepreneurDraft.load<EntrepreneurDraftData>();
@@ -174,14 +175,17 @@ export function WelcomeSetup() {
         }
       }
 
-      try {
-        localStorage.removeItem("ml_pending_setup");
-      } catch {
-        /* noop */
+        try {
+          localStorage.removeItem("ml_pending_setup");
+        } catch {
+          /* noop */
+        }
+      } finally {
+        // Pase lo que pase, retornar a la intención original: el perfil y
+        // Mis locales permiten completar cualquier dato que haya fallado.
+        router.replace(returnTo);
+        router.refresh();
       }
-
-      router.replace(returnTo);
-      router.refresh();
     })();
   }, [router, returnTo]);
 
