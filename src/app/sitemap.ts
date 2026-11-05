@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { createSupabaseStatic } from "@/lib/supabase/static";
 
 export const revalidate = 3600;
 
@@ -14,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const supabase = await createSupabaseServer();
+    const supabase = createSupabaseStatic();
     const { data } = await supabase
       .from("public_properties")
       .select("id, published_at")

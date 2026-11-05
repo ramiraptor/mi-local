@@ -1,4 +1,4 @@
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { createSupabaseStatic } from "@/lib/supabase/static";
 import { signPhotoUrls } from "@/lib/signed-photos";
 import { PropertyCard } from "@/components/PropertyCard";
 import { TrackedLink } from "@/components/TrackedLink";
@@ -6,10 +6,11 @@ import { PageViewTracker } from "@/components/PageViewTracker";
 import type { PublicProperty } from "@/lib/types";
 import Link from "next/link";
 
-export const revalidate = 300; // ISR: landing pública
+// ISR servida por CDN; 60s para que una moderación salga rápido de destacados
+export const revalidate = 60;
 
 async function getFeatured(): Promise<{ properties: PublicProperty[]; thumbs: Map<string, string> }> {
-  const supabase = await createSupabaseServer();
+  const supabase = createSupabaseStatic();
   const { data: properties } = await supabase
     .from("public_properties")
     .select("*")

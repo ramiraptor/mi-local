@@ -1,12 +1,25 @@
+"use client";
+
 import Link from "next/link";
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { useEffect, useState } from "react";
+import { createSupabaseBrowser } from "@/lib/supabase/client";
 import { SignOutButton } from "./SignOutButton";
 
-export async function Header() {
-  const supabase = await createSupabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+/**
+ * Header con sesión resuelta en el cliente: evita cookies() en el layout y
+ * permite que las páginas públicas (landing) se sirvan como ISR desde CDN.
+ */
+export function Header() {
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowser();
+    void supabase.auth.getUser().then(({ data: { user } }) => setSignedIn(Boolean(user)));
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => setSignedIn(Boolean(session?.user)));
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -21,7 +34,7 @@ export async function Header() {
           <Link href="/explorar" className="btn-ghost px-3 py-2">
             Explorar locales
           </Link>
-          {user ? (
+          {signedIn ? (
             <>
               <Link href="/mis-locales" className="btn-ghost hidden px-3 py-2 sm:inline-flex">
                 Mis locales
