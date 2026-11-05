@@ -1,0 +1,7 @@
+# MiLocal MVP1 — Netlify + Next.js 15 (runtime oficial)
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
