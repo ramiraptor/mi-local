@@ -47,8 +47,9 @@ npm run test:e2e                    # Playwright: flujos A y B (levanta next dev
   el frontend.
 - **Runbooks:** `docs/runbooks/` — restauración de BD+fotos, rollback de
   Netlify, rotación de secretos, incidentes.
-- **Deploy:** `npx netlify deploy --build --prod` (sitio aún no conectado a
-  Git; conectar en Netlify UI → "Link repository" para CI/CD automático).
+- **Deploy:** `.\scripts\deploy.ps1` — usa `NETLIFY_AUTH_TOKEN`/`NETLIFY_SITE_ID`
+  de `.env.ops`, sin `netlify login` (sitio aún no conectado a Git; conectar en
+  Netlify UI → "Link repository" para CI/CD automático).
 
 ## Cobertura por pilar (estado real al cierre)
 
