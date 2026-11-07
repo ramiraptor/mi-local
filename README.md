@@ -177,3 +177,6 @@ npm run test:e2e                    # Playwright: flujos A y B (levanta next dev
 7. Recordatorio operativo de vigencia ~30 días (hoy es indicador en /admin;
    falta notificación interna programada).
 8. Evaluar migración de región de Supabase a sa-east-1.
+9. Cambiar la URL pública a `www.milocal.io` — procedimiento completo y
+   checklist en `docs/runbooks/cambio-dominio.md` (decidido 07/11/2026,
+   pendiente de ejecutar).
