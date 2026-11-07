@@ -143,28 +143,31 @@ npm run test:e2e                    # Playwright: flujos A y B (levanta next dev
 
 ## Riesgos y limitaciones conocidas
 
-1. **Correo transaccional (bloqueante para usuarios reales):** Resend sin
-   dominio verificado solo entrega al correo dueño de la cuenta. Remitente
-   actual: `onboarding@resend.dev`. → Verificar un dominio en Resend y
-   actualizar el remitente antes de abrir a público.
+1. ~~Correo transaccional~~ **Resuelto el 07/11/2026:** dominio
+   `info.milocal.io` verificado en Resend y remitente actualizado a
+   `no-reply@info.milocal.io`; los correos ya llegan a cualquier destinatario.
+   Las plantillas de confirmación/recuperación usan flujo `token_hash`
+   (válido en cualquier navegador; ver regla 9 de `AGENTS.md`) y el límite de
+   envío quedó en 30 correos/hora.
 2. **Sitio Netlify no conectado a Git:** deploys vía CLI. Conectar el repo en
    la UI para deploys automáticos y Deploy Previews por PR.
 3. **Región de Supabase (ca-central-1):** funcional, pero con más latencia que
    sa-east-1 y relevante para LEGAL-05. Migrar = proyecto nuevo + restore.
-4. **Smoke de producción con correo real pendiente del founder:** el ciclo
-   registro → correo de verificación → publicar/solicitar solo puede probarse
-   end-to-end en producción con la casilla dueña de la cuenta Resend
-   (`equipomilocal@gmail.com`) mientras no haya dominio verificado. Los flujos
-   completos están probados E2E en local y la configuración de Auth de
-   producción está verificada por API.
+4. **Smoke de producción con correo de tercero pendiente:** con el dominio
+   verificado (07/11/2026) los correos ya llegan a cualquier casilla; falta
+   ejecutar una vez el ciclo registro → verificación → publicar/solicitar con
+   un correo ajeno al equipo. El ciclo completo ya se probó con
+   `equipomilocal@gmail.com` (verificación, recuperación, ADMIN + MFA) y los
+   flujos están cubiertos E2E en local.
 
 ## Backlog priorizado — Día 2
 
-1. Verificar dominio en Resend + remitente propio; probar ciclo completo de
-   verificación de correo en producción con usuario real.
+1. ✅ ~~Verificar dominio en Resend + remitente propio~~ (hecho 07/11/2026).
+   Pendiente: probar registro completo en producción con un correo de tercero.
 2. Conectar Netlify ↔ GitHub (CI/CD + Deploy Previews) y activar el workflow
    `rls` de GitHub Actions como gate de PR.
-3. Provisionar ADMIN de producción (founder) + enrolar MFA + smoke del panel.
+3. ✅ ~~Provisionar ADMIN de producción (founder) + enrolar MFA~~ (hecho
+   05/11/2026; cuenta verificada, contraseña establecida, TOTP enrolado).
 4. Decidir plan de backups (Pro/PITR o dumps programados) y ENSAYAR
    restauración (OPS-01).
 5. Textos legales definitivos (LEGAL-01/02) y versionar en `app_settings`.
